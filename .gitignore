@@ -11,3 +11,4 @@ coverage/
 *.log
 postgres/data/
 n8n/data/
+graphify-out/
