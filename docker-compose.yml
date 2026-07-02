@@ -1,0 +1,102 @@
+name: n8n-base-config-alcore
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: alcore-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-n8n_alcore}
+      POSTGRES_USER: ${POSTGRES_USER:-alcore}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-alcore_local_123}
+      TZ: ${TZ:-America/Guatemala}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-alcore} -d ${POSTGRES_DB:-n8n_alcore}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - alcore_net
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: alcore-n8n
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB:-n8n_alcore}
+      DB_POSTGRESDB_USER: ${POSTGRES_USER:-alcore}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD:-alcore_local_123}
+      N8N_HOST: ${N8N_HOST:-localhost}
+      N8N_PORT: 5678
+      N8N_PROTOCOL: ${N8N_PROTOCOL:-http}
+      WEBHOOK_URL: ${WEBHOOK_URL:-http://localhost:5678/}
+      N8N_EDITOR_BASE_URL: ${N8N_EDITOR_BASE_URL:-http://localhost:5678/}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-alcore-local-dev-key-change-32chars}
+      N8N_SECURE_COOKIE: ${N8N_SECURE_COOKIE:-false}
+      GENERIC_TIMEZONE: ${GENERIC_TIMEZONE:-America/Guatemala}
+      TZ: ${TZ:-America/Guatemala}
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./workflows:/home/node/workflows
+    networks:
+      - alcore_net
+
+  node-app:
+    build:
+      context: ./node-app
+    container_name: alcore-node-app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3000
+      APP_NAME: ${APP_NAME:-alcore-node-app}
+      DATABASE_URL: postgres://${POSTGRES_USER:-alcore}:${POSTGRES_PASSWORD:-alcore_local_123}@postgres:5432/${POSTGRES_DB:-n8n_alcore}
+      TZ: ${TZ:-America/Guatemala}
+    ports:
+      - "${NODE_APP_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./node-app/src:/app/src
+      - /app/node_modules
+    networks:
+      - alcore_net
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: alcore-ngrok
+    restart: unless-stopped
+    profiles:
+      - tunnel
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN:-}
+    command:
+      - http
+      - n8n:5678
+      - --log=stdout
+    depends_on:
+      - n8n
+    networks:
+      - alcore_net
+
+volumes:
+  postgres_data:
+  n8n_data:
+
+networks:
+  alcore_net:
+    driver: bridge

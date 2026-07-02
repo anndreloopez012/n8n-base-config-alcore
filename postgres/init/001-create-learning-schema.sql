@@ -1,0 +1,16 @@
+CREATE SCHEMA IF NOT EXISTS learning;
+
+CREATE TABLE IF NOT EXISTS learning.webhook_events (
+  id BIGSERIAL PRIMARY KEY,
+  source TEXT NOT NULL DEFAULT 'n8n',
+  payload JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS learning.student_notes (
+  id BIGSERIAL PRIMARY KEY,
+  student_name TEXT NOT NULL,
+  topic TEXT NOT NULL,
+  note TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

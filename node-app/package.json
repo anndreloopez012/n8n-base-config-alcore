@@ -1,0 +1,15 @@
+{
+  "name": "alcore-node-app",
+  "version": "1.0.0",
+  "description": "API Node.js local para practicar integraciones con n8n.",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.12.0"
+  }
+}
