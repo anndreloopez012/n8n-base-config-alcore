@@ -13,6 +13,11 @@ fi
 
 cp "$EXAMPLE_FILE" "$ENV_FILE"
 
+if grep -q '^POSTGRES_PORT=5432$' "$ENV_FILE"; then
+  sed -i.bak 's/^POSTGRES_PORT=5432$/POSTGRES_PORT=5433/' "$ENV_FILE"
+  rm -f "$ENV_FILE.bak"
+fi
+
 if command -v openssl >/dev/null 2>&1; then
   KEY="$(openssl rand -hex 24)"
   sed -i.bak "s/N8N_ENCRYPTION_KEY=.*/N8N_ENCRYPTION_KEY=$KEY/" "$ENV_FILE"

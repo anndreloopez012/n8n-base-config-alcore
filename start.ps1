@@ -31,6 +31,12 @@ if (-not (Test-Path ".env")) {
   Write-Host ".env ya existe. Se conserva la configuracion actual."
 }
 
+$envContent = Get-Content ".env"
+if ($envContent -contains "POSTGRES_PORT=5432") {
+  $envContent | ForEach-Object { $_ -replace "^POSTGRES_PORT=5432$", "POSTGRES_PORT=5433" } | Set-Content ".env"
+  Write-Host "POSTGRES_PORT actualizado de 5432 a 5433 para evitar conflictos locales."
+}
+
 Write-Step "Validando docker-compose.yml"
 docker compose config --quiet
 

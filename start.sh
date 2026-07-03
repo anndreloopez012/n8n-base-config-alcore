@@ -32,6 +32,12 @@ else
   echo ".env ya existe. Se conserva la configuracion actual."
 fi
 
+if grep -q '^POSTGRES_PORT=5432$' .env; then
+  sed -i.bak 's/^POSTGRES_PORT=5432$/POSTGRES_PORT=5433/' .env
+  rm -f .env.bak
+  echo "POSTGRES_PORT actualizado de 5432 a 5433 para evitar conflictos locales."
+fi
+
 print_step "Validando docker-compose.yml"
 docker compose config --quiet
 

@@ -48,14 +48,18 @@ docker compose up -d
 http://localhost:5679
 ```
 
-## El puerto 5432 esta ocupado
+## PostgreSQL local y puertos
 
-Puede pasar si tienes PostgreSQL instalado en tu maquina.
+Por defecto este proyecto publica PostgreSQL en `localhost:5433` para evitar conflictos con instalaciones locales que ya usan `5432`.
+
+Dentro de Docker, n8n y Node.js siguen usando `postgres:5432`. No cambies ese valor dentro de los servicios.
+
+Si tambien tienes ocupado el puerto `5433`, cambia el puerto externo:
 
 Solucion:
 
 ```env
-POSTGRES_PORT=5433
+POSTGRES_PORT=5434
 ```
 
 Luego:
@@ -157,4 +161,3 @@ Esto borra:
 - Datos de PostgreSQL.
 
 Usalo con cuidado.
-

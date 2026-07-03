@@ -7,7 +7,7 @@ La idea es que cualquier estudiante pueda clonar el repositorio, ejecutar un com
 ## Que incluye
 
 - n8n listo en `http://localhost:5678`
-- PostgreSQL listo en `localhost:5432`
+- PostgreSQL listo en `localhost:5433` desde tu computadora
 - API Node.js de prueba lista en `http://localhost:3000`
 - ngrok preparado para publicar n8n cuando se necesite probar webhooks externos
 - Base de datos inicial con tablas de practica
@@ -131,11 +131,13 @@ Valores por defecto:
 
 ```text
 Host: localhost
-Puerto: 5432
+Puerto: 5433
 Base de datos: n8n_alcore
 Usuario: alcore
 Password: alcore_local_123
 ```
+
+Nota: dentro de Docker, PostgreSQL sigue usando el puerto `5432`. El cambio a `5433` aplica solo cuando te conectas desde tu computadora para evitar conflictos con instalaciones locales de PostgreSQL.
 
 Desde dentro de Docker, otros servicios se conectan usando:
 
